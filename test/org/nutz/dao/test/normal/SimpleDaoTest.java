@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+
+import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.nutz.Nutz;
@@ -52,6 +55,7 @@ import org.nutz.dao.test.meta.PetObj;
 import org.nutz.dao.test.meta.PojoWithNull;
 import org.nutz.dao.test.meta.SimplePOJO;
 import org.nutz.dao.test.meta.UseBlobClob;
+import org.nutz.dao.test.meta.issue1074.PojoSql;
 import org.nutz.dao.test.meta.issue396.Issue396Master;
 import org.nutz.dao.test.meta.issue726.Issue726;
 import org.nutz.dao.test.meta.issue901.XPlace;
@@ -715,5 +719,34 @@ public class SimpleDaoTest extends DaoCase {
         assertEquals(" WHERE  1 != 1 ", Cnd.where("name", "in", Collections.EMPTY_LIST).toString());
         assertEquals(" WHERE  1 != 1 ", Cnd.where("name", "in", new String[0]).toString());
         assertEquals(" WHERE  1 != 1 ", Cnd.where("id", "in", new int[]{}).toString());
+    }
+    
+    @Test
+    public void new_nutdao_inside_trans() {
+        // 这纯粹是重现bug的代码,不要学
+        final DataSource ds = ioc.get(DataSource.class);
+        Trans.exec(new Atom() {
+            public void run() {
+                new NutDao(ds);
+            }
+        });
+    }
+    
+    @Test
+    public void test_pojo_sql_params() {
+        dao.create(PojoSql.class, false);
+        PojoSql pojo = new PojoSql();
+        pojo.setName(R.UU32());
+        dao.insert(pojo);
+        
+        assertEquals(pojo.getName(), pojo.getNickname());
+    }
+    
+    @Test
+    public void test_record_treemap() {
+        TreeMap<Record, String> map = new TreeMap<Record, String>();
+        map.put(new Record(), "abc");
+        map.put(new Record(), "abc");
+        
     }
 }

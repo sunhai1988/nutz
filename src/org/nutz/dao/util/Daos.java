@@ -358,8 +358,10 @@ public abstract class Daos {
     	String tmpTable = "as _nutz_tmp";
     	if (dao.meta().isDB2())
     	    tmpTable = "as nutz_tmp_" + R.UU32();
-    	else if (!dao.meta().isOracle())
-    		tmpTable += "_" + R.UU32();
+        else if (dao.meta().isOracle())
+            tmpTable = "";
+        else
+            tmpTable += "_" + R.UU32();
         Sql sql2 = Sqls.fetchInt("select count(1) from ("
                                  + sql
                                  + ")" + tmpTable);
@@ -1055,7 +1057,7 @@ public abstract class Daos {
         return keywords;
     }
     
-    public static boolean CHECK_COLUMN_NAME_KEYWORD = true;
+    public static boolean CHECK_COLUMN_NAME_KEYWORD = false;
     public static boolean FORCE_WRAP_COLUMN_NAME = false;
     public static boolean FORCE_UPPER_COLUMN_NAME = false;
 }
